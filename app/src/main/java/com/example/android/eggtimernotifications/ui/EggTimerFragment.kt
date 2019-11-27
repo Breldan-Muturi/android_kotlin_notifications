@@ -33,7 +33,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.example.android.eggtimernotifications.R
 import com.example.android.eggtimernotifications.databinding.FragmentEggTimerBinding
 import com.google.firebase.messaging.FirebaseMessaging
-
 class EggTimerFragment : Fragment() {
 
     private val TOPIC = "breakfast"
@@ -57,6 +56,12 @@ class EggTimerFragment : Fragment() {
             getString(R.string.egg_notification_channel_id),
             getString(R.string.egg_notification_channel_name)
         )
+
+        createChannel(
+            getString(R.string.breakfast_notification_channel_id),
+            getString(R.string.breakfast_notification_channel_name)
+        )
+        subscribeTopic()
         return binding.root
     }
 
@@ -67,8 +72,11 @@ class EggTimerFragment : Fragment() {
                 channelId,
                 channelName,
                 // TODO: Step 2.4 Change Notification Importance
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_HIGH
             )
+                .apply {
+                    setShowBadge(false)
+                }
             //TODO: Step 2.6 disable badges for this channel
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.GREEN
@@ -84,6 +92,16 @@ class EggTimerFragment : Fragment() {
 
     }
 
+    private fun subscribeTopic(){
+        FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
+            .addOnCompleteListener { task ->
+                var msg = getString(R.string.message_subscribed)
+                if (!task.isSuccessful){
+                    msg = getString(R.string.message_subscribe_failed)
+                }
+                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            }
+    }
     companion object {
         fun newInstance() = EggTimerFragment()
     }
